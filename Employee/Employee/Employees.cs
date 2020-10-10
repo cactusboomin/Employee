@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Forms;
 
 namespace Employee
@@ -15,7 +16,6 @@ namespace Employee
     {
         DataSet ds;
         SqlDataAdapter adapter;
-        SqlCommandBuilder commandBuilder;
         string connectionString = @"Data Source=DESKTOP-HDUACAM; User ID='sa'; Password='sa';Initial Catalog=employeesdb;Integrated Security=True";
         string sql = "SELECT * FROM Employees";
 
@@ -29,6 +29,7 @@ namespace Employee
             EmpTable.AllowUserToOrderColumns = false;
             EmpTable.AllowUserToResizeRows = false;
             EmpTable.AllowUserToResizeColumns = true;
+            EmpTable.Visible = true;
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -77,7 +78,7 @@ namespace Employee
                     
                     ds.Tables[0].Rows.Add(row);
 
-                    commandBuilder = new SqlCommandBuilder(adapter);
+                    SqlCommandBuilder commandBuilder = new SqlCommandBuilder(adapter);
                     adapter.Update(ds);
                     ds.Clear();
                     adapter.Fill(ds);
@@ -105,6 +106,32 @@ namespace Employee
                     ds.Clear();
                     adapter.Fill(ds);
                 }
+            }
+        }
+
+        private void FilterButton_Click(object sender, EventArgs e)
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                adapter = new SqlDataAdapter(sql, connection);
+                ds = new DataSet();
+
+                adapter.Fill(ds);
+                EmpTable.DataSource = ds.Tables[0];
+                EmpTable.CurrentCell = null;
+
+                if (!string.IsNullOrEmpty(Filter.Text))
+                { 
+                    for (int i = 0; i < EmpTable.Rows.Count; i++)
+                    {
+                        EmpTable.Rows[i].Visible = EmpTable[10, i].Value.ToString() == Filter.Text;
+                    }
+                }
+
+                EmpTable.Columns["ID"].ReadOnly = true;
+                EmpTable.AutoGenerateColumns = true;
             }
         }
     }
