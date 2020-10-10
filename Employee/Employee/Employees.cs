@@ -15,10 +15,13 @@ namespace Employee
 {
     public partial class Employees : Form
     {
+        static string dataSource = "DESKTOP-HDUACAM";
+        static string databaseName = "employeesdb";
+        static string tableName = "tablename";
         DataSet ds;
         SqlDataAdapter adapter;
-        string connectionString = @"Data Source=DESKTOP-HDUACAM; User ID='sa'; Password='sa';Initial Catalog=employeesdb;Integrated Security=True";
-        string sql = "SELECT * FROM Employees";
+        string connectionString = $@"Data Source={dataSource}; User ID='sa'; Password='sa';Initial Catalog={databaseName};Integrated Security=True";
+        string sql = $"SELECT * FROM {tableName}";
 
         public Employees()
         {
@@ -33,16 +36,46 @@ namespace Employee
             EmpTable.Visible = true;
             EmpTable.AutoGenerateColumns = true;
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
 
-                adapter = new SqlDataAdapter(sql, connection);
-                ds = new DataSet();
+                    adapter = new SqlDataAdapter(sql, connection);
+                    ds = new DataSet();
 
-                adapter.Fill(ds);
-                EmpTable.DataSource = ds.Tables[0];
-                EmpTable.Columns["ID"].Visible = false;
+                    adapter.Fill(ds);
+                    EmpTable.DataSource = ds.Tables[0];
+                    EmpTable.Columns["ID"].Visible = false;
+                }
+            }
+            catch
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    SqlCommand command = new SqlCommand();
+                    command.Connection = connection;
+                    string str = $"CREATE TABLE {tableName} " +
+                        $"(ID INT IDENTITY (1, 1) PRIMARY KEY, " +
+                        $"FirstName NVARCHAR (50), " +
+                        $"LastName NVARCHAR (50), " +
+                        $"DateOfBirth DATE," +
+                        $"Position NVARCHAR(50)," +
+                        $"Salary FLOAT)";
+
+                    command.CommandText = str;
+                    command.ExecuteNonQuery();
+
+                    adapter = new SqlDataAdapter(sql, connection);
+                    ds = new DataSet();
+
+                    adapter.Fill(ds);
+                    EmpTable.DataSource = ds.Tables[0];
+                    EmpTable.Columns["ID"].Visible = false;
+                }
             }
         }
 
@@ -70,7 +103,7 @@ namespace Employee
                     adapter = new SqlDataAdapter(sql, connection);
 
                     var row = ds.Tables[0].NewRow();
-                    row[0] = Guid.NewGuid().ToString();
+                    row[0] = ds.Tables[0].Rows.Count;
                     row[1] = FirstNameTextBox.Text;
                     row[2] = LastNameTextBox.Text;
                     row[3] = dateOfBirth;
@@ -144,15 +177,37 @@ namespace Employee
 
         private void ReportButton_Click(object sender, EventArgs e)
         {
+            var positionSalary = new Dictionary<string, double>();
+            var positionCount = new Dictionary<string, int>();
+
+            string position;
+            double salary;
+
             var ExcelApp = new Microsoft.Office.Interop.Excel.Application();
             ExcelApp.Application.Workbooks.Add(Type.Missing);
 
-            for (int i = 0; i < EmpTable.ColumnCount; i++)
+            for (int j = 0; j < EmpTable.RowCount; j++)
             {
-                for (int j = 0; j < EmpTable.RowCount; j++)
+                position = EmpTable[4, j].Value.ToString();
+                salary = (double)EmpTable[5, j].Value;
+
+                if (positionSalary.ContainsKey(position))
                 {
-                    ExcelApp.Cells[j + 2, i + 1] = EmpTable[i, j].Value.ToString();
+                    positionSalary[position] += salary;
+                    positionCount[position]++;
                 }
+                else
+                {
+                    positionSalary.Add(position, salary);
+                    positionCount.Add(position, 1);
+                    ExcelApp.Cells[j + 1, 1] = position;
+                }
+            }
+
+            for (int i = 0; i < positionCount.Count; i++)
+            {
+                position = ExcelApp.Cells[i + 1, 1].Value;
+                ExcelApp.Cells[i + 1, 2] = (positionSalary[position] / positionCount[position]).ToString();
             }
 
             ExcelApp.Visible = true;
