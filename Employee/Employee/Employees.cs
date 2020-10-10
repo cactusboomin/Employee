@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Forms;
+using Microsoft.Office.Interop.Excel;
 
 namespace Employee
 {
@@ -30,6 +31,7 @@ namespace Employee
             EmpTable.AllowUserToResizeRows = false;
             EmpTable.AllowUserToResizeColumns = true;
             EmpTable.Visible = true;
+            EmpTable.AutoGenerateColumns = true;
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -40,8 +42,7 @@ namespace Employee
 
                 adapter.Fill(ds);
                 EmpTable.DataSource = ds.Tables[0];
-                EmpTable.Columns["ID"].ReadOnly = true;
-                EmpTable.AutoGenerateColumns = true;
+                EmpTable.Columns["ID"].Visible = false;
             }
         }
 
@@ -69,13 +70,19 @@ namespace Employee
                     adapter = new SqlDataAdapter(sql, connection);
 
                     var row = ds.Tables[0].NewRow();
-                    row["ID"] = Guid.NewGuid().ToString();
-                    row["FirstName"] = FirstNameTextBox.Text;
-                    row["LastName"] = LastNameTextBox.Text;
-                    row["DateOfBirth"] = dateOfBirth;
-                    row["Position"] = PositionTextBox.Text;
-                    row["Salary"] = salary;
-                    
+                    row[0] = Guid.NewGuid().ToString();
+                    row[1] = FirstNameTextBox.Text;
+                    row[2] = LastNameTextBox.Text;
+                    row[3] = dateOfBirth;
+                    row[4] = PositionTextBox.Text;
+                    row[5] = salary;
+
+                    FirstNameTextBox.Clear();
+                    LastNameTextBox.Clear();
+                    DateOfBirthTextBox.Clear();
+                    PositionTextBox.Clear();
+                    SalaryTextBox.Clear();
+
                     ds.Tables[0].Rows.Add(row);
 
                     SqlCommandBuilder commandBuilder = new SqlCommandBuilder(adapter);
@@ -126,13 +133,29 @@ namespace Employee
                 { 
                     for (int i = 0; i < EmpTable.Rows.Count; i++)
                     {
-                        EmpTable.Rows[i].Visible = EmpTable[10, i].Value.ToString() == Filter.Text;
+                        EmpTable.Rows[i].Visible = EmpTable[4, i].Value.ToString() == Filter.Text;
                     }
                 }
 
                 EmpTable.Columns["ID"].ReadOnly = true;
                 EmpTable.AutoGenerateColumns = true;
             }
+        }
+
+        private void ReportButton_Click(object sender, EventArgs e)
+        {
+            var ExcelApp = new Microsoft.Office.Interop.Excel.Application();
+            ExcelApp.Application.Workbooks.Add(Type.Missing);
+
+            for (int i = 0; i < EmpTable.ColumnCount; i++)
+            {
+                for (int j = 0; j < EmpTable.RowCount; j++)
+                {
+                    ExcelApp.Cells[j + 2, i + 1] = EmpTable[i, j].Value.ToString();
+                }
+            }
+
+            ExcelApp.Visible = true;
         }
     }
 }
