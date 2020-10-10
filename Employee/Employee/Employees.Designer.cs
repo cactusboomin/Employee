@@ -28,9 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.EmpTable = new System.Windows.Forms.DataGridView();
-            this.Filter = new System.Windows.Forms.ComboBox();
             this.ReportButton = new System.Windows.Forms.Button();
             this.DeleteButton = new System.Windows.Forms.Button();
             this.AddButton = new System.Windows.Forms.Button();
@@ -44,39 +41,11 @@
             this.LastNameLabel = new System.Windows.Forms.Label();
             this.FirstNameLabel = new System.Windows.Forms.Label();
             this.FirstNameTextBox = new System.Windows.Forms.TextBox();
-            this.manBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.FirstName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.LastName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DateOfBirth = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Position = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Salary = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Filter = new System.Windows.Forms.TextBox();
+            this.FilterButton = new System.Windows.Forms.Button();
+            this.EmpTable = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.EmpTable)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.manBindingSource)).BeginInit();
             this.SuspendLayout();
-            // 
-            // EmpTable
-            // 
-            this.EmpTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.EmpTable.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.ID,
-            this.FirstName,
-            this.LastName,
-            this.DateOfBirth,
-            this.Position,
-            this.Salary});
-            this.EmpTable.Location = new System.Drawing.Point(12, 57);
-            this.EmpTable.Name = "EmpTable";
-            this.EmpTable.Size = new System.Drawing.Size(543, 381);
-            this.EmpTable.TabIndex = 0;
-            // 
-            // Filter
-            // 
-            this.Filter.FormattingEnabled = true;
-            this.Filter.Location = new System.Drawing.Point(13, 13);
-            this.Filter.Name = "Filter";
-            this.Filter.Size = new System.Drawing.Size(542, 21);
-            this.Filter.TabIndex = 1;
             // 
             // ReportButton
             // 
@@ -86,6 +55,7 @@
             this.ReportButton.TabIndex = 12;
             this.ReportButton.Text = "Отчёт";
             this.ReportButton.UseVisualStyleBackColor = true;
+            this.ReportButton.Click += new System.EventHandler(this.ReportButton_Click);
             // 
             // DeleteButton
             // 
@@ -187,53 +157,42 @@
             this.FirstNameTextBox.Size = new System.Drawing.Size(224, 20);
             this.FirstNameTextBox.TabIndex = 3;
             // 
-            // manBindingSource
+            // Filter
             // 
-            this.manBindingSource.DataSource = typeof(Employee.Man);
+            this.Filter.Location = new System.Drawing.Point(12, 12);
+            this.Filter.Name = "Filter";
+            this.Filter.Size = new System.Drawing.Size(442, 20);
+            this.Filter.TabIndex = 15;
             // 
-            // ID
+            // FilterButton
             // 
-            this.ID.Frozen = true;
-            this.ID.HeaderText = "ID";
-            this.ID.Name = "ID";
-            this.ID.ReadOnly = true;
-            this.ID.Visible = false;
+            this.FilterButton.Location = new System.Drawing.Point(460, 12);
+            this.FilterButton.Name = "FilterButton";
+            this.FilterButton.Size = new System.Drawing.Size(95, 20);
+            this.FilterButton.TabIndex = 16;
+            this.FilterButton.Text = "Отфильтровать";
+            this.FilterButton.UseVisualStyleBackColor = true;
+            this.FilterButton.Click += new System.EventHandler(this.FilterButton_Click);
             // 
-            // FirstName
+            // EmpTable
             // 
-            this.FirstName.Frozen = true;
-            this.FirstName.HeaderText = "Имя";
-            this.FirstName.Name = "FirstName";
-            // 
-            // LastName
-            // 
-            this.LastName.Frozen = true;
-            this.LastName.HeaderText = "Фамилия";
-            this.LastName.Name = "LastName";
-            // 
-            // DateOfBirth
-            // 
-            this.DateOfBirth.Frozen = true;
-            this.DateOfBirth.HeaderText = "Дата рождения";
-            this.DateOfBirth.Name = "DateOfBirth";
-            // 
-            // Position
-            // 
-            this.Position.Frozen = true;
-            this.Position.HeaderText = "Должность";
-            this.Position.Name = "Position";
-            // 
-            // Salary
-            // 
-            this.Salary.Frozen = true;
-            this.Salary.HeaderText = "Зарплата";
-            this.Salary.Name = "Salary";
+            this.EmpTable.AllowUserToAddRows = false;
+            this.EmpTable.AllowUserToDeleteRows = false;
+            this.EmpTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.EmpTable.Location = new System.Drawing.Point(13, 39);
+            this.EmpTable.Name = "EmpTable";
+            this.EmpTable.ReadOnly = true;
+            this.EmpTable.Size = new System.Drawing.Size(545, 399);
+            this.EmpTable.TabIndex = 17;
             // 
             // Employees
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.EmpTable);
+            this.Controls.Add(this.FilterButton);
+            this.Controls.Add(this.Filter);
             this.Controls.Add(this.AddButton);
             this.Controls.Add(this.DeleteButton);
             this.Controls.Add(this.ReportButton);
@@ -247,22 +206,16 @@
             this.Controls.Add(this.LastNameLabel);
             this.Controls.Add(this.FirstNameTextBox);
             this.Controls.Add(this.FirstNameLabel);
-            this.Controls.Add(this.Filter);
-            this.Controls.Add(this.EmpTable);
             this.Name = "Employees";
             this.Text = "Сотрудники";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.EmpTable)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.manBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.DataGridView EmpTable;
-        private System.Windows.Forms.ComboBox Filter;
         private System.Windows.Forms.Button ReportButton;
         private System.Windows.Forms.Button DeleteButton;
         private System.Windows.Forms.Button AddButton;
@@ -276,13 +229,9 @@
         private System.Windows.Forms.Label LastNameLabel;
         private System.Windows.Forms.Label FirstNameLabel;
         private System.Windows.Forms.TextBox FirstNameTextBox;
-        private System.Windows.Forms.BindingSource manBindingSource;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ID;
-        private System.Windows.Forms.DataGridViewTextBoxColumn FirstName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn LastName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn DateOfBirth;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Position;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Salary;
+        private System.Windows.Forms.TextBox Filter;
+        private System.Windows.Forms.Button FilterButton;
+        private System.Windows.Forms.DataGridView EmpTable;
     }
 }
 
